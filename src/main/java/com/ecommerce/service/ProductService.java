@@ -76,6 +76,51 @@ public class ProductService {
 		return dtos;
 	}
 	
+	public List<ProductResponseDto> findProductsByCategory(int categoryId){
+		if(!categoryRepository.existsById(categoryId)) {
+			throw new ResourceNotFoundException("Products not found with category ID = "+categoryId);
+		}
+		
+		List<Product> products=productRepository.findByCategoryCategoryId(categoryId);
+		List<ProductResponseDto> dtos=new ArrayList<>();
+		for(Product product:products) {
+			dtos.add(mapToResponseDto(product));
+		}
+		return dtos;
+	}
+	
+	public List<ProductResponseDto> searchProducts(String keyword){
+		List<Product> products=productRepository.findByNameContainingIgnoreCase(keyword);
+		List<ProductResponseDto> dtos=new ArrayList<>();
+		for(Product product:products) {
+			dtos.add(mapToResponseDto(product));
+		}
+		return dtos;
+	}
+	
+	public ProductResponseDto updateProduct(int productId,ProductRequestDto dto) {
+		Product existingProduct=productRepository.findById(productId).orElseThrow(()->new ResourceNotFoundException("Prodcut not found with ID ="+productId));
+		Category category=categoryRepository.findById(dto.getCategoryId()).orElseThrow(()->new ResourceNotFoundException("Category not found with ID = "+dto.getCategoryId()));
+		
+		existingProduct.setName(dto.getName());
+		existingProduct.setDescription(dto.getDescription());
+		existingProduct.setPrice(dto.getPrice());
+		existingProduct.setStockQuantity(dto.getStockQuanitiy());
+		existingProduct.setBrand(dto.getBrand());
+		existingProduct.setSize(dto.getSize());
+		existingProduct.setColor(dto.getColor());
+		existingProduct.setImageUrl(dto.getImageUrl());
+		existingProduct.setCategory(category);
+		
+		Product updatedProduct=productRepository.save(existingProduct);
+		return mapToResponseDto(updatedProduct);
+		
+	}
+	
+	public void deleteProduct(int productId) {
+		Product product=productRepository.findById(productId).orElseThrow(()->new ResourceNotFoundException("Product not found with ID = "+productId));
+		productRepository.delete(product);
+	}
 	
 	
 }
