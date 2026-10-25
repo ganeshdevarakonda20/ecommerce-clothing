@@ -16,13 +16,8 @@ import java.util.*;
 @Service
 public class CategoryService {
 	
-	private final UserRepository userRepository;
 	@Autowired
 	private CategoryRepository categoryRepository;
-
-	CategoryService(UserRepository userRepository) {
-		this.userRepository = userRepository;
-	}
 	
 	public CategoryResponseDto mapToResponseDto(Category category){
 		CategoryResponseDto crd=new CategoryResponseDto();
@@ -61,7 +56,7 @@ public class CategoryService {
 	public CategoryResponseDto updateCategory(int categoryId,CategoryRequestDto dto) {
 		 Category existingCategory=categoryRepository.findById(categoryId).orElseThrow(()->new ResourceNotFoundException("Category not found with ID = "+categoryId));
 		 if(!existingCategory.getCategoryName().equalsIgnoreCase(dto.getCategoryName()) && categoryRepository.existsByCategoryName(dto.getCategoryName())) {
-			 throw new DuplicateResourceException("Cateegory already exists with ID = "+categoryId);
+			 throw new DuplicateResourceException("Category already exists with ID = "+dto.getCategoryName());
 		 }
 		 existingCategory.setCategoryName(dto.getCategoryName());
 		 existingCategory.setDescription(dto.getDescription());

@@ -90,7 +90,7 @@ public class ProductResponseDto {
 		this.size = size;
 	}
 
-	public String getCoolor() {
+	public String getColor() {
 		return color;
 	}
 
@@ -98,11 +98,11 @@ public class ProductResponseDto {
 		this.color = color;
 	}
 
-	public String getImaegUrl() {
+	public String getImageUrl() {
 		return imageUrl;
 	}
 
-	public void setImaegUrl(String imageUrl) {
+	public void setImageUrl(String imageUrl) {
 		this.imageUrl = imageUrl;
 	}
 

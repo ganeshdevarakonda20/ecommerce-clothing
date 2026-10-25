@@ -11,11 +11,6 @@ import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 
 
-@Setter
-@Getter
-@NoArgsConstructor
-@AllArgsConstructor
-
 public class UserRequestDto {
 	
 	@NotBlank(message="Name cannot be blank")
@@ -45,7 +40,7 @@ public class UserRequestDto {
 
 	public UserRequestDto(@NotBlank(message = "Name cannot be blank") String name,
 			@NotBlank(message = "Email is required") @Email(message = "Invalid email format") String email,
-			@NotBlank(message = "Password is required") @Size(message = "Password must be atleast 6 characters")  String password,
+			@NotBlank(message = "Password is required") @Size(min=6, message = "Password must be atleast 6 characters")  String password,
 			@NotBlank(message = "Phone number is required") String phone,
 			@NotBlank(message = "Address is required") String address,
 			 Integer roleId) {

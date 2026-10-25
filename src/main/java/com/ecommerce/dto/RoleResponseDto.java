@@ -22,7 +22,7 @@ public class RoleResponseDto {
 	
 	public RoleResponseDto(int roleId,String roleName) {
 		this.roleId=roleId;
-		this.roleName=roleName;;
+		this.roleName=roleName;
 	}
 
 	public int getRoleId() {

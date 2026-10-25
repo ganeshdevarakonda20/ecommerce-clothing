@@ -3,6 +3,7 @@ package com.ecommerce.service;
 import java.util.*;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import com.ecommerce.dto.CategoryResponseDto;
 import com.ecommerce.dto.ProductRequestDto;
@@ -13,11 +14,13 @@ import com.ecommerce.exception.ResourceNotFoundException;
 import com.ecommerce.repository.CategoryRepository;
 import com.ecommerce.repository.ProductRepository;
 
+@Service
 public class ProductService {
 	
 	@Autowired
 	private ProductRepository productRepository;
 	
+	@Autowired
 	private CategoryRepository categoryRepository;
 	
 	public ProductResponseDto mapToResponseDto(Product product) {
@@ -31,7 +34,7 @@ public class ProductService {
 		dto.setBrand(product.getBrand());
 		dto.setSize(product.getSize());
 		dto.setColor(product.getColor());
-		dto.setImaegUrl(product.getImageUrl());
+		dto.setImageUrl(product.getImageUrl());
 		
 		if(product.getCategory()!=null) {
 			CategoryResponseDto crd=new CategoryResponseDto();
@@ -50,7 +53,7 @@ public class ProductService {
 		product.setName(dto.getName());
 		product.setDescription(dto.getDescription());
 		product.setPrice(dto.getPrice());
-		product.setStockQuantity(dto.getStockQuanitiy());
+		product.setStockQuantity(dto.getStockQuantitiy());
 		product.setBrand(dto.getBrand());
 		product.setSize(dto.getSize());
 		product.setColor(dto.getColor());
@@ -99,13 +102,13 @@ public class ProductService {
 	}
 	
 	public ProductResponseDto updateProduct(int productId,ProductRequestDto dto) {
-		Product existingProduct=productRepository.findById(productId).orElseThrow(()->new ResourceNotFoundException("Prodcut not found with ID ="+productId));
+		Product existingProduct=productRepository.findById(productId).orElseThrow(()->new ResourceNotFoundException("Product not found with ID ="+productId));
 		Category category=categoryRepository.findById(dto.getCategoryId()).orElseThrow(()->new ResourceNotFoundException("Category not found with ID = "+dto.getCategoryId()));
 		
 		existingProduct.setName(dto.getName());
 		existingProduct.setDescription(dto.getDescription());
 		existingProduct.setPrice(dto.getPrice());
-		existingProduct.setStockQuantity(dto.getStockQuanitiy());
+		existingProduct.setStockQuantity(dto.getStockQuantitiy());
 		existingProduct.setBrand(dto.getBrand());
 		existingProduct.setSize(dto.getSize());
 		existingProduct.setColor(dto.getColor());

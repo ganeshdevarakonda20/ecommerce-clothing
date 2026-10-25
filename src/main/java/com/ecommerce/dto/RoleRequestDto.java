@@ -6,11 +6,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-
-@Setter
-@Getter
-@NoArgsConstructor
-@AllArgsConstructor
 public class RoleRequestDto {
 	
 	@NotBlank(message="RoleName is required")

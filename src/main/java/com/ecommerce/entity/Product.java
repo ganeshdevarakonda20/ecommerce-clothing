@@ -26,10 +26,10 @@ public class Product {
 	@Column(name="price", nullable=false)
 	private double price;
 	
-	@Column(name="stock_quantity", nullable=false)
+	@Column(name="stock", nullable=false)
 	private int stockQuantity;
 	
-	@Column(name="brand")
+	@jakarta.persistence.Transient
 	private String brand;
 	
 	@Column(name="size")
@@ -38,7 +38,7 @@ public class Product {
 	@Column(name="color")
 	private String color;
 	
-	@Column(name="image_url")
+	@Column(name="image_path")
 	private String imageUrl;
 	
 	@ManyToOne

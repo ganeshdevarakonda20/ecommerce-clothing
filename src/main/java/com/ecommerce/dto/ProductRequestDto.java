@@ -20,7 +20,7 @@ public class ProductRequestDto {
 	
 	@NotNull(message="Stock quantity is required ")
 	@Min(value=0, message="Stock quantity cannot be negative")
-	private int stockQuanitiy;
+	private int stockQuantitiy;
 	
 	private String brand;
 	private String size;
@@ -35,15 +35,15 @@ public class ProductRequestDto {
 	}
 
 	public ProductRequestDto(@NotBlank(message = "Name is required") String name, String description,
-			@NotBlank(message = "Price is required") @DecimalMin(value = "0.0", inclusive = false, message = "price must be greater than zero") double price,
-			@NotBlank(message = "Stock quantity is required ") @Min(value = 0, message = "Stock quantity cannot be negative") int stockQuanitiy,
+			@NotNull(message = "Price is required") @DecimalMin(value = "0.0", inclusive = false, message = "price must be greater than zero") double price,
+			@NotNull(message = "Stock quantity is required ") @Min(value = 0, message = "Stock quantity cannot be negative") int stockQuantitiy,
 			String brand, String size, String color, String imageUrl,
-			@NotBlank(message = "Category is required") Integer catagoryId) {
+			@NotNull(message = "Category is required") Integer catagoryId) {
 		super();
 		this.name = name;
 		this.description = description;
 		this.price = price;
-		this.stockQuanitiy = stockQuanitiy;
+		this.stockQuantitiy = stockQuantitiy;
 		this.brand = brand;
 		this.size = size;
 		this.color = color;
@@ -75,12 +75,12 @@ public class ProductRequestDto {
 		this.price = price;
 	}
 
-	public int getStockQuanitiy() {
-		return stockQuanitiy;
+	public int getStockQuantitiy() {
+		return stockQuantitiy;
 	}
 
-	public void setStockQuanitiy(int stockQuanitiy) {
-		this.stockQuanitiy = stockQuanitiy;
+	public void setStockQuanitiy(int stockQuantitiy) {
+		this.stockQuantitiy = stockQuantitiy;
 	}
 
 	public String getBrand() {
@@ -119,8 +119,8 @@ public class ProductRequestDto {
 		return categoryId;
 	}
 
-	public void setCategoryId(Integer catagory) {
-		this.categoryId = catagory;
+	public void setCategoryId(Integer catagoryId) {
+		this.categoryId = catagoryId;
 	}
 	
 	
