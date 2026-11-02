@@ -3,6 +3,7 @@ package com.ecommerce.service;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -25,6 +26,10 @@ public class UserService {
 	
 	@Autowired
 	private RoleRepository roleRepository;
+	
+	@Autowired
+	private PasswordEncoder passwordEncoder;
+	
 	
 	private UserResponseDto mapToResponseDto(User user) {
 		
@@ -57,7 +62,7 @@ public class UserService {
 		User user=new User();
 		user.setName(dto.getName());
 		user.setEmail(dto.getEmail());
-		user.setPassword(dto.getPassword());
+		user.setPassword(passwordEncoder.encode(dto.getPassword()));
 		user.setPhone(dto.getPhone());
 		user.setAddress(dto.getAddress());
 		user.setRole(role);
@@ -94,7 +99,7 @@ public class UserService {
 		existingUser.setName(user.getName());
 		existingUser.setPhone(user.getPhone());
 		existingUser.setAddress(user.getAddress());
-		existingUser.setPassword(user.getPassword());
+		existingUser.setPassword(passwordEncoder.encode(user.getPassword()));
 		existingUser.setRole(role);
 		
 		User savedUser=userRepository.save(existingUser);

@@ -51,5 +51,11 @@ public class GlobalExceptionHandler {
 		return new ResponseEntity<>(error,HttpStatus.CONFLICT);
 	}
 	
+	@ExceptionHandler(org.springframework.security.authentication.BadCredentialsException.class)
+	public ResponseEntity<ErrorDetails> handleBadCredentials(
+	        org.springframework.security.authentication.BadCredentialsException ex, WebRequest request) {
+	    ErrorDetails error = new ErrorDetails(LocalDateTime.now(), "Invalid email or password", request.getDescription(false));
+	    return new ResponseEntity<>(error, HttpStatus.UNAUTHORIZED);
+	}
 	
 }
