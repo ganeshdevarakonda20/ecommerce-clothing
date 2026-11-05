@@ -6,6 +6,8 @@ import java.util.Map;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -16,15 +18,21 @@ import org.springframework.web.context.request.WebRequest;
 public class GlobalExceptionHandler {
 	
 	@ExceptionHandler(ResourceNotFoundException.class)
-	public ResponseEntity<ErrorDetails> handleResourceNotFoundException(ResourceNotFoundException ex,WebRequest request){
-		ErrorDetails error=new ErrorDetails(LocalDateTime.now(),ex.getMessage(),request.getDescription(false));
-		return new ResponseEntity<>(error,HttpStatus.NOT_FOUND);
+	public ResponseEntity<ErrorDetails> handleResourceNotFoundException(ResourceNotFoundException ex, WebRequest request) {
+		ErrorDetails error = new ErrorDetails(LocalDateTime.now(), ex.getMessage(), request.getDescription(false));
+		return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
 	}
 	
 	@ExceptionHandler(UserAlreadyExistsException.class)
-	public ResponseEntity<ErrorDetails> handleUserAlreadyExistsException(UserAlreadyExistsException ex,WebRequest request){
-		ErrorDetails error=new ErrorDetails(LocalDateTime.now(),ex.getMessage(),request.getDescription(false));
-		return new ResponseEntity<>(error,HttpStatus.CONFLICT);
+	public ResponseEntity<ErrorDetails> handleUserAlreadyExistsException(UserAlreadyExistsException ex, WebRequest request) {
+		ErrorDetails error = new ErrorDetails(LocalDateTime.now(), ex.getMessage(), request.getDescription(false));
+		return new ResponseEntity<>(error, HttpStatus.CONFLICT);
+	}
+	
+	@ExceptionHandler(DuplicateResourceException.class)
+	public ResponseEntity<ErrorDetails> handleDuplicateResourceException(DuplicateResourceException ex, WebRequest request) {
+		ErrorDetails error = new ErrorDetails(LocalDateTime.now(), ex.getMessage(), request.getDescription(false));
+		return new ResponseEntity<>(error, HttpStatus.CONFLICT);
 	}
 	
 	@ExceptionHandler(MethodArgumentNotValidException.class)
@@ -38,24 +46,39 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
     }
 	
-	@ExceptionHandler(Exception.class)
-    public ResponseEntity<ErrorDetails> handleGlobalException(
-            Exception ex, WebRequest request) {
-        ErrorDetails error = new ErrorDetails(LocalDateTime.now(),ex.getMessage(),request.getDescription(false));
-        return new ResponseEntity<>(error, HttpStatus.INTERNAL_SERVER_ERROR);
-    }
-	
-	@ExceptionHandler(DuplicateResourceException.class)
-	public ResponseEntity<ErrorDetails> handleDuplicateResourceException(DuplicateResourceException ex,WebRequest req){
-		ErrorDetails error=new ErrorDetails(LocalDateTime.now(),ex.getMessage(),req.getDescription(false));
-		return new ResponseEntity<>(error,HttpStatus.CONFLICT);
-	}
-	
-	@ExceptionHandler(org.springframework.security.authentication.BadCredentialsException.class)
-	public ResponseEntity<ErrorDetails> handleBadCredentials(
-	        org.springframework.security.authentication.BadCredentialsException ex, WebRequest request) {
+	@ExceptionHandler(BadCredentialsException.class)
+	public ResponseEntity<ErrorDetails> handleBadCredentials(BadCredentialsException ex, WebRequest request) {
 	    ErrorDetails error = new ErrorDetails(LocalDateTime.now(), "Invalid email or password", request.getDescription(false));
 	    return new ResponseEntity<>(error, HttpStatus.UNAUTHORIZED);
 	}
+
+	@ExceptionHandler(AccessDeniedException.class)
+	public ResponseEntity<ErrorDetails> handleAccessDeniedException(AccessDeniedException ex, WebRequest request) {
+	    ErrorDetails error = new ErrorDetails(LocalDateTime.now(), "Access denied: You do not have permission to access this resource", request.getDescription(false));
+	    return new ResponseEntity<>(error, HttpStatus.FORBIDDEN);
+	}
+
+	@ExceptionHandler(IllegalArgumentException.class)
+	public ResponseEntity<ErrorDetails> handleIllegalArgumentException(IllegalArgumentException ex, WebRequest request) {
+		ErrorDetails error = new ErrorDetails(LocalDateTime.now(), ex.getMessage(), request.getDescription(false));
+		return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
+	}
+
+	@ExceptionHandler(IllegalStateException.class)
+	public ResponseEntity<ErrorDetails> handleIllegalStateException(IllegalStateException ex, WebRequest request) {
+		ErrorDetails error = new ErrorDetails(LocalDateTime.now(), ex.getMessage(), request.getDescription(false));
+		return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
+	}
+
+	@ExceptionHandler(RuntimeException.class)
+	public ResponseEntity<ErrorDetails> handleRuntimeException(RuntimeException ex, WebRequest request) {
+		ErrorDetails error = new ErrorDetails(LocalDateTime.now(), ex.getMessage(), request.getDescription(false));
+		return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
+	}
 	
+	@ExceptionHandler(Exception.class)
+    public ResponseEntity<ErrorDetails> handleGlobalException(Exception ex, WebRequest request) {
+        ErrorDetails error = new ErrorDetails(LocalDateTime.now(), ex.getMessage(), request.getDescription(false));
+        return new ResponseEntity<>(error, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
 }

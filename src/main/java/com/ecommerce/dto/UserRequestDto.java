@@ -1,49 +1,35 @@
 package com.ecommerce.dto;
 
 import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.AllArgsConstructor;
-import lombok.NoArgsConstructor;
-
 
 public class UserRequestDto {
 	
-	@NotBlank(message="Name cannot be blank")
+	@NotBlank(message = "Name cannot be blank")
 	private String name;
 	
-	@NotBlank(message="Email is required")
-	@Email(message="Invalid email format")
+	@NotBlank(message = "Email is required")
+	@Email(message = "Invalid email format")
 	private String email;
 	
-	@NotBlank(message="Password is required")
-	@Size(min=6, message="Password must be atleast 6 characters")
+	@NotBlank(message = "Password is required")
+	@Size(min = 6, message = "Password must be atleast 6 characters")
 	private String password;
 	
-	@NotBlank(message="Phone number is required")
+	@NotBlank(message = "Phone number is required")
 	private String phone;
 	
-	@NotBlank(message="Address is required")
+	@NotBlank(message = "Address is required")
 	private String address;
 	
-	@NotNull(message="RoleId is required")
 	private Integer roleId;
-	
 	
 	public UserRequestDto() {
 		super();
 	}
 
-	public UserRequestDto(@NotBlank(message = "Name cannot be blank") String name,
-			@NotBlank(message = "Email is required") @Email(message = "Invalid email format") String email,
-			@NotBlank(message = "Password is required") @Size(min=6, message = "Password must be atleast 6 characters")  String password,
-			@NotBlank(message = "Phone number is required") String phone,
-			@NotBlank(message = "Address is required") String address,
-			 Integer roleId) {
+	public UserRequestDto(String name, String email, String password, String phone, String address, Integer roleId) {
 		super();
 		this.name = name;
 		this.email = email;
@@ -52,9 +38,7 @@ public class UserRequestDto {
 		this.address = address;
 		this.roleId = roleId;
 	}
-	
-	
-	
+
 	public String getName() {
 		return name;
 	}
@@ -102,7 +86,4 @@ public class UserRequestDto {
 	public void setRoleId(Integer roleId) {
 		this.roleId = roleId;
 	}
-	
-	
-	
 }

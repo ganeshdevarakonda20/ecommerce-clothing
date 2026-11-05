@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.ecommerce.dto.PageResponseDto;
 import com.ecommerce.dto.ProductRequestDto;
 import com.ecommerce.dto.ProductResponseDto;
 import com.ecommerce.service.ProductService;
@@ -29,38 +30,48 @@ public class ProductController {
 	private ProductService productService;
 	
 	@PostMapping
-	public ResponseEntity<ProductResponseDto> addProduct(@Valid @RequestBody ProductRequestDto dto ){
-		ProductResponseDto createdProduct=productService.addProduct(dto);
-		return new ResponseEntity<>(createdProduct,HttpStatus.CREATED);
+	public ResponseEntity<ProductResponseDto> addProduct(@Valid @RequestBody ProductRequestDto dto) {
+		ProductResponseDto createdProduct = productService.addProduct(dto);
+		return new ResponseEntity<>(createdProduct, HttpStatus.CREATED);
 	}
 	
 	@GetMapping("/{productId}")
-	public ResponseEntity<ProductResponseDto> getProductById(@PathVariable int productId){
-		ProductResponseDto product=productService.getProductById(productId);
+	public ResponseEntity<ProductResponseDto> getProductById(@PathVariable int productId) {
+		ProductResponseDto product = productService.getProductById(productId);
 		return ResponseEntity.ok(product);
 	}
 	
 	@GetMapping
-	public ResponseEntity<List<ProductResponseDto>> getAllProducts(){
-		List<ProductResponseDto> products=productService.getAllProducts();
+	public ResponseEntity<List<ProductResponseDto>> getAllProducts() {
+		List<ProductResponseDto> products = productService.getAllProducts();
 		return ResponseEntity.ok(products);
+	}
+
+	@GetMapping("/page")
+	public ResponseEntity<PageResponseDto<ProductResponseDto>> getAllProductsPaginated(
+			@RequestParam(defaultValue = "0") int page,
+			@RequestParam(defaultValue = "10") int size,
+			@RequestParam(defaultValue = "productId") String sortBy,
+			@RequestParam(defaultValue = "asc") String sortDir) {
+		PageResponseDto<ProductResponseDto> response = productService.getAllProductsPaginated(page, size, sortBy, sortDir);
+		return ResponseEntity.ok(response);
 	}
 	
 	@GetMapping("/category/{categoryId}")
-	public ResponseEntity<List<ProductResponseDto>> getProductByCategory(@PathVariable int categoryId){
-		List<ProductResponseDto> dtos=productService.findProductsByCategory(categoryId);
+	public ResponseEntity<List<ProductResponseDto>> getProductByCategory(@PathVariable int categoryId) {
+		List<ProductResponseDto> dtos = productService.findProductsByCategory(categoryId);
 		return ResponseEntity.ok(dtos);
 	}
 	
 	@GetMapping("/search")
-	public ResponseEntity<List<ProductResponseDto>> searchProducts(@RequestParam("keyword") String keyword){
-		List<ProductResponseDto> products=productService.searchProducts(keyword);
+	public ResponseEntity<List<ProductResponseDto>> searchProducts(@RequestParam("keyword") String keyword) {
+		List<ProductResponseDto> products = productService.searchProducts(keyword);
 		return ResponseEntity.ok(products);
 	}
 	
 	@PutMapping("/{productId}")
-	public ResponseEntity<ProductResponseDto> updateProduct(@PathVariable int productId,@Valid @RequestBody ProductRequestDto dto){
-		ProductResponseDto product=productService.updateProduct(productId, dto);
+	public ResponseEntity<ProductResponseDto> updateProduct(@PathVariable int productId, @Valid @RequestBody ProductRequestDto dto) {
+		ProductResponseDto product = productService.updateProduct(productId, dto);
 		return ResponseEntity.ok(product);
 	}
 	
@@ -69,5 +80,4 @@ public class ProductController {
 		productService.deleteProduct(productId);
 		return ResponseEntity.ok("Product is successfully deleted");
 	}
-	
 }

@@ -1,11 +1,18 @@
 package com.ecommerce.service;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import com.ecommerce.dto.CategoryResponseDto;
+import com.ecommerce.dto.PageResponseDto;
 import com.ecommerce.dto.ProductRequestDto;
 import com.ecommerce.dto.ProductResponseDto;
 import com.ecommerce.entity.Category;
@@ -24,8 +31,7 @@ public class ProductService {
 	private CategoryRepository categoryRepository;
 	
 	public ProductResponseDto mapToResponseDto(Product product) {
-		
-		ProductResponseDto dto=new ProductResponseDto();
+		ProductResponseDto dto = new ProductResponseDto();
 		dto.setProductId(product.getProductId());
 		dto.setName(product.getName());
 		dto.setDescription(product.getDescription());
@@ -36,20 +42,20 @@ public class ProductService {
 		dto.setColor(product.getColor());
 		dto.setImageUrl(product.getImageUrl());
 		
-		if(product.getCategory()!=null) {
-			CategoryResponseDto crd=new CategoryResponseDto();
+		if (product.getCategory() != null) {
+			CategoryResponseDto crd = new CategoryResponseDto();
 			crd.setCategoryId(product.getCategory().getCategoryId());
 			crd.setCategoryName(product.getCategory().getCategoryName());
 			crd.setDescription(product.getCategory().getDescription());
 			dto.setCategory(crd);
 		}
 		return dto;
-		
 	}
 	
 	public ProductResponseDto addProduct(ProductRequestDto dto) {
-		Category category=categoryRepository.findById(dto.getCategoryId()).orElseThrow(()->new ResourceNotFoundException("Category not found with ID = "+dto.getCategoryId()));
-		Product product=new Product();
+		Category category = categoryRepository.findById(dto.getCategoryId())
+				.orElseThrow(() -> new ResourceNotFoundException("Category not found with ID = " + dto.getCategoryId()));
+		Product product = new Product();
 		product.setName(dto.getName());
 		product.setDescription(dto.getDescription());
 		product.setPrice(dto.getPrice());
@@ -60,50 +66,73 @@ public class ProductService {
 		product.setImageUrl(dto.getImageUrl());
 		product.setCategory(category);
 		
-		Product savedProduct=productRepository.save(product);
+		Product savedProduct = productRepository.save(product);
 		return mapToResponseDto(savedProduct);
 	}
 	
 	public ProductResponseDto getProductById(int productId) {
-		Product product=productRepository.findById(productId).orElseThrow(()->new ResourceNotFoundException("Product not found with ID = "+productId));
+		Product product = productRepository.findById(productId)
+				.orElseThrow(() -> new ResourceNotFoundException("Product not found with ID = " + productId));
 		return mapToResponseDto(product);
+	}
+	
+	public List<ProductResponseDto> getAllProducts() {
+		List<Product> products = productRepository.findAll();
+		List<ProductResponseDto> dtos = new ArrayList<>();
+		for (Product product : products) {
+			dtos.add(mapToResponseDto(product));
+		}
+		return dtos;
+	}
+
+	public PageResponseDto<ProductResponseDto> getAllProductsPaginated(int pageNo, int pageSize, String sortBy, String sortDir) {
+		Sort sort = sortDir.equalsIgnoreCase(Sort.Direction.ASC.name())
+				? Sort.by(sortBy).ascending()
+				: Sort.by(sortBy).descending();
+		Pageable pageable = PageRequest.of(pageNo, pageSize, sort);
+		Page<Product> productPage = productRepository.findAll(pageable);
 		
+		List<ProductResponseDto> content = productPage.getContent().stream()
+				.map(this::mapToResponseDto)
+				.collect(Collectors.toList());
+				
+		return new PageResponseDto<>(
+				content,
+				productPage.getNumber(),
+				productPage.getSize(),
+				productPage.getTotalElements(),
+				productPage.getTotalPages(),
+				productPage.isLast()
+		);
 	}
 	
-	public List<ProductResponseDto> getAllProducts(){
-		List<Product> products=productRepository.findAll();
-		List<ProductResponseDto> dtos=new ArrayList<>();
-		for(Product product : products) {
-			dtos.add(mapToResponseDto(product));
-		}
-		return dtos;
-	}
-	
-	public List<ProductResponseDto> findProductsByCategory(int categoryId){
-		if(!categoryRepository.existsById(categoryId)) {
-			throw new ResourceNotFoundException("Products not found with category ID = "+categoryId);
+	public List<ProductResponseDto> findProductsByCategory(int categoryId) {
+		if (!categoryRepository.existsById(categoryId)) {
+			throw new ResourceNotFoundException("Products not found with category ID = " + categoryId);
 		}
 		
-		List<Product> products=productRepository.findByCategoryCategoryId(categoryId);
-		List<ProductResponseDto> dtos=new ArrayList<>();
-		for(Product product:products) {
+		List<Product> products = productRepository.findByCategoryCategoryId(categoryId);
+		List<ProductResponseDto> dtos = new ArrayList<>();
+		for (Product product : products) {
 			dtos.add(mapToResponseDto(product));
 		}
 		return dtos;
 	}
 	
-	public List<ProductResponseDto> searchProducts(String keyword){
-		List<Product> products=productRepository.findByNameContainingIgnoreCase(keyword);
-		List<ProductResponseDto> dtos=new ArrayList<>();
-		for(Product product:products) {
+	public List<ProductResponseDto> searchProducts(String keyword) {
+		List<Product> products = productRepository.findByNameContainingIgnoreCase(keyword);
+		List<ProductResponseDto> dtos = new ArrayList<>();
+		for (Product product : products) {
 			dtos.add(mapToResponseDto(product));
 		}
 		return dtos;
 	}
 	
-	public ProductResponseDto updateProduct(int productId,ProductRequestDto dto) {
-		Product existingProduct=productRepository.findById(productId).orElseThrow(()->new ResourceNotFoundException("Product not found with ID ="+productId));
-		Category category=categoryRepository.findById(dto.getCategoryId()).orElseThrow(()->new ResourceNotFoundException("Category not found with ID = "+dto.getCategoryId()));
+	public ProductResponseDto updateProduct(int productId, ProductRequestDto dto) {
+		Product existingProduct = productRepository.findById(productId)
+				.orElseThrow(() -> new ResourceNotFoundException("Product not found with ID = " + productId));
+		Category category = categoryRepository.findById(dto.getCategoryId())
+				.orElseThrow(() -> new ResourceNotFoundException("Category not found with ID = " + dto.getCategoryId()));
 		
 		existingProduct.setName(dto.getName());
 		existingProduct.setDescription(dto.getDescription());
@@ -115,15 +144,13 @@ public class ProductService {
 		existingProduct.setImageUrl(dto.getImageUrl());
 		existingProduct.setCategory(category);
 		
-		Product updatedProduct=productRepository.save(existingProduct);
+		Product updatedProduct = productRepository.save(existingProduct);
 		return mapToResponseDto(updatedProduct);
-		
 	}
 	
 	public void deleteProduct(int productId) {
-		Product product=productRepository.findById(productId).orElseThrow(()->new ResourceNotFoundException("Product not found with ID = "+productId));
+		Product product = productRepository.findById(productId)
+				.orElseThrow(() -> new ResourceNotFoundException("Product not found with ID = " + productId));
 		productRepository.delete(product);
 	}
-	
-	
 }

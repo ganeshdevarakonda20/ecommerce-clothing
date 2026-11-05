@@ -6,6 +6,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -21,7 +22,7 @@ import com.ecommerce.repository.UserRepository;
 import com.ecommerce.security.JwtUtils;
 import com.ecommerce.service.UserService;
 
-import jakarta.validation.*;
+import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -29,30 +30,38 @@ public class AuthController {
 	
 	@Autowired
     private AuthenticationManager authenticationManager;
+    
     @Autowired
     private UserService userService;
+    
     @Autowired
     private UserRepository userRepository;
+    
     @Autowired
     private JwtUtils jwtUtils;
-    // 1. Register a new user
+    
+    // 1. Register a new user (always defaults to CUSTOMER role for safety)
     @PostMapping("/register")
     public ResponseEntity<UserResponseDto> register(@Valid @RequestBody UserRequestDto dto) {
+        dto.setRoleId(null); // Prevent privilege escalation to ADMIN via public register
         UserResponseDto createdUser = userService.addUser(dto);
         return new ResponseEntity<>(createdUser, HttpStatus.CREATED);
     }
+    
     // 2. Login and get JWT token
     @PostMapping("/login")
     public ResponseEntity<AuthResponseDto> login(@Valid @RequestBody LoginRequestDto loginDto) {
+        // A. Verify email & password
+        authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(loginDto.getEmail(), loginDto.getPassword())
+        );
         
-        // A. Ask Spring Security's AuthenticationManager to verify email & password
-        Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(loginDto.getEmail(), loginDto.getPassword()));
+        // B. Fetch the user details
+        User user = userRepository.findByEmail(loginDto.getEmail())
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with email: " + loginDto.getEmail()));
+        String roleName = (user.getRole() != null) ? user.getRole().getRoleName() : "ROLE_CUSTOMER";
         
-        // B. Fetch the user from DB to get their details (ID and role)
-        User user = userRepository.findByEmail(loginDto.getEmail()).orElseThrow(() -> new ResourceNotFoundException("User not found with email: " + loginDto.getEmail()));
-        String roleName = (user.getRole() != null) ? user.getRole().getRoleName() : "CUSTOMER";
-        
-        // C. Generate the JWT Token!
+        // C. Generate the JWT Token
         String token = jwtUtils.generateToken(user.getEmail(), roleName, user.getUserId());
         
         // D. Build the response DTO
@@ -65,5 +74,15 @@ public class AuthController {
         );
         return ResponseEntity.ok(response);
     }
-	
+
+    // 3. Get profile of currently logged-in user
+    @GetMapping("/me")
+    public ResponseEntity<UserResponseDto> getCurrentUser(Authentication authentication) {
+        if (authentication == null || !authentication.isAuthenticated()) {
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        }
+        String email = authentication.getName();
+        UserResponseDto user = userService.getUserByEmail(email);
+        return ResponseEntity.ok(user);
+    }
 }
